@@ -33,15 +33,15 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
     const userId = req.params.userId
     const user = await userService.getUserById(userId)
     if (!user) {
-      sendErrorResponse(res, "Somthing went wrong creating uset")
+      sendErrorResponse(res, "user not found", 404)
     }
-    sendSuccessResponse(res, `User created`)
+    sendSuccessResponse(res, user)
   } catch (e) {
     next(e);
   }
 }
 
-export function updateUserById(
+export async function updateUserById(
   req: Request,
   res: Response,
   next: NextFunction
@@ -49,9 +49,10 @@ export function updateUserById(
   try {
     const userId = req.params.userId
     const {name, password} = req.body
-    const updateUser = userService.updateUserById(userId, name, password)
+    const updateUser = await userService.updateUserById(userId, name, password)
     if (!updateUser) {
       sendErrorResponse(res, "User didn't get updated")
+      return;
     }
     sendSuccessResponse(res, "User got updated ")
   } catch (e) {
@@ -76,15 +77,15 @@ export async function deleteUserbyId(
   }
 }
 
-export function getUserLinksById(
-  req: Request<{ id: string }>,
+export async function getLinksByUserId(
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    // const id = req.params.id;
-    // const links = await linksService.getLinksByUserId(id);
-    // sendSuccessResponse(res, links);
+    const userId = req.params.userId;
+    const links = await userService.getLinksByUserId(userId);
+    sendSuccessResponse(res, links);
   } catch (e) {
     next(e);
   }

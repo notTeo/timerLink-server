@@ -4,7 +4,7 @@ import { LinkGroup, LinkGroupDocument } from "./linkGroupSchema";
 interface UserDocument extends Document {
   name: string;
   password: string;
-  linkCollections: Array<LinkGroupDocument["_id"]>;
+  linkCollections: Array<LinkGroupDocument['_id']>;
   entryDate: Date;
 }
 

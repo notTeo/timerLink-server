@@ -1,6 +1,7 @@
 import express from "express";
 import * as userValidator from "./user.validator";
 import * as userController from "./user.controller";
+import {createNewLink} from "../links/linkController";
 import * as authMiddleware from "../../middleware/auth.middleware";
 
 const router = express.Router();
@@ -15,8 +16,8 @@ router.post(
   userController.createNewUser
 );
 router.get("/:userId", userController.getUserById);
-router.put("/edit-user/:userId", userController.updateUserById);
-router.delete("/delete-user/:userId", userController.deleteUserbyId);
-router.get("/:userId/links", userController.getUserLinksById);
+router.put("/:userId/edit-user", userController.updateUserById);
+router.delete("/:userId/delete-user", userController.deleteUserbyId);
+router.get("/:userId/links", userController.getLinksByUserId);
 
 export default router;

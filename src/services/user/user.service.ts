@@ -2,7 +2,13 @@ import { User } from "../../models/userSchema";
 import  bcrypt from 'bcrypt'
 
 export async function getAllUsers() {
-  return await User.find();
+
+  return await User.find().populate({
+    path: 'linkCollections',
+    populate: {
+      path: 'targets'
+    }
+  });
 }
 
 export async function createNewUser(name: string, password: string) {
@@ -12,7 +18,8 @@ export async function createNewUser(name: string, password: string) {
 }
 
 export async function getUserById(userId: string) {
-  return await User.findById(userId);
+  const user = await User.findById(userId).populate('linkCollections');
+  return user
 }
 
 export async function updateUserById(
@@ -34,4 +41,12 @@ export async function updateUserById(
 
 export async function deleteUserById(userId: string) {
   return await User.findByIdAndDelete(userId);
+}
+
+export async function getLinksByUserId(userId: string) {
+  const user = await User.findById(userId).populate('linkCollections');
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.linkCollections;
 }

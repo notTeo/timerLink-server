@@ -1,22 +1,16 @@
 import express from "express";
-import * as userValidator from "./linkValidator";
-import * as userController from "./user.controller";
-import * as authMiddleware from "../../middleware/auth.middleware";
+import * as linkValidator from "./linkValidator";
+import * as linkConroller from "./linkController";
 
 const router = express.Router();
 
-// router.use(authMiddleware.token, authMiddleware.validate);
+//router.use(authMiddleware.token, authMiddleware.validate);
+router.post("/:userId/new-link", linkConroller.createNewLink);
+router.post("/:userId/:linkId/new-target", linkConroller.createNewTarget);
+router.get("/:userId/:linkId", linkConroller.getLinkById)
+router.get("/:userId/:linkId/:targetId", linkConroller.getTargetByLinkId);
+router.delete("/:userId/:linkId/delete-link", linkConroller.deleteLinkById);
 
-router.get("/", userController.getAllUsers);
-router.post(
-  "/new-user",
-  //   authMiddleware.validate,
-  userValidator.createUserValidation,
-  userController.createNewUser
-);
-router.get("/:userId", userController.getUserById);
-router.put("/edit-user/:userId", userController.updateUserById);
-router.delete("/delete-user/:userId", userController.deleteUserbyId);
-router.get("/:userId/links", userController.getUserLinksById);
+
 
 export default router;
