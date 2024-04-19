@@ -10,6 +10,8 @@ router.post("/:userId/:linkId/new-target", linkConroller.createNewTarget);
 router.get("/:userId/:linkId", linkConroller.getLinkById)
 router.get("/:userId/:linkId/:targetId", linkConroller.getTargetByLinkId);
 router.delete("/:userId/:linkId/delete-link", linkConroller.deleteLinkById);
+router.delete("/:userId/:linkId/:targetId/delete-target", linkConroller.deleteTargetById);
+router.put("/:userId/:linkId/:targetId/edit-target", linkConroller.updateTargetById);
 
 
 

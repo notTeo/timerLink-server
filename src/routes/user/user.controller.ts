@@ -8,10 +8,7 @@ export async function getAllUsers(
   next: NextFunction
 ) {
   try {
-    const users = await userService.getAllUsers();
-    if (!users) {
-      sendErrorResponse(res, "Something went wrong fetching users from database")
-    }
+    const users = await userService.getAllUsers(res);
     sendSuccessResponse(res, users);
   } catch (e) {
     next(e);
@@ -21,7 +18,7 @@ export async function getAllUsers(
 export async function createNewUser(req: Request, res: Response, next: NextFunction) {
   try {
     const {name , password}  = req.body;
-    const createdUser = await userService.createNewUser(name, password);
+    const createdUser = await userService.createNewUser(name, password, res);
     sendSuccessResponse(res, createdUser)
   } catch (e) {
     next(e);
@@ -31,10 +28,7 @@ export async function createNewUser(req: Request, res: Response, next: NextFunct
 export async function getUserById(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.params.userId
-    const user = await userService.getUserById(userId)
-    if (!user) {
-      sendErrorResponse(res, "user not found", 404)
-    }
+    const user = await userService.getUserById(userId, res)
     sendSuccessResponse(res, user)
   } catch (e) {
     next(e);
@@ -49,11 +43,7 @@ export async function updateUserById(
   try {
     const userId = req.params.userId
     const {name, password} = req.body
-    const updateUser = await userService.updateUserById(userId, name, password)
-    if (!updateUser) {
-      sendErrorResponse(res, "User didn't get updated")
-      return;
-    }
+    await userService.updateUserById(userId, name, password, res)
     sendSuccessResponse(res, "User got updated ")
   } catch (e) {
     next(e);
@@ -67,10 +57,7 @@ export async function deleteUserbyId(
 ) {
   try {
     const userId = req.params.userId
-    const deletedUser = await userService.deleteUserById(userId)
-    if (!deletedUser) {
-      sendErrorResponse(res, "User didn't get deleted")
-    }
+    await userService.deleteUserById(userId, res)
     sendSuccessResponse(res, `User deleted`)
   } catch (e) {
     next(e);
@@ -84,7 +71,7 @@ export async function getLinksByUserId(
 ) {
   try {
     const userId = req.params.userId;
-    const links = await userService.getLinksByUserId(userId);
+    const links = await userService.getLinksByUserId(userId, res);
     sendSuccessResponse(res, links);
   } catch (e) {
     next(e);

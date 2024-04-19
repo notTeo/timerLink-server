@@ -4,19 +4,21 @@ import * as userController from "./user.controller";
 import {createNewLink} from "../links/linkController";
 import * as authMiddleware from "../../middleware/auth.middleware";
 
+
 const router = express.Router();
 
-// router.use(authMiddleware.token, authMiddleware.validate);
+//router.use(authMiddleware.token, authMiddleware.validate);
 
 router.get("/", userController.getAllUsers);
 router.post(
   "/new-user",
-  //   authMiddleware.validate,
+  
   userValidator.createUserValidation,
-  userController.createNewUser
+  userController.createNewUser,
+  authMiddleware.validate
 );
 router.get("/:userId", userController.getUserById);
-router.put("/:userId/edit-user", userController.updateUserById);
+router.put("/:userId/edit-user", userValidator.updateUserValidation,userController.updateUserById);
 router.delete("/:userId/delete-user", userController.deleteUserbyId);
 router.get("/:userId/links", userController.getLinksByUserId);
 
