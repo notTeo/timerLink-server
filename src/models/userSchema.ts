@@ -1,23 +1,33 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { LinkGroup, LinkGroupDocument } from "./linkGroupSchema";
+import { LinkGroupDocument } from "./linkGroupSchema";
 
 interface UserDocument extends Document {
   name: string;
+  lastName: string;
   password: string;
-  linkCollections: Array<LinkGroupDocument['_id']>;
+  links: Array<LinkGroupDocument["_id"]>;
   entryDate: Date;
 }
 
 const userSchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String },
+  lastName: { type: String },
+  username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  linkCollections: [{ type: Schema.Types.ObjectId, ref: "LinkGroup" }],
+  links: [{ type: Schema.Types.ObjectId, ref: "LinkGroup" }],
   entryDate: { type: Date, default: Date.now },
 });
 
 const User: Model<UserDocument> = mongoose.model<UserDocument>(
   "User",
-  userSchema
+  userSchema,
 );
+
+export interface IUserPayload {
+  name: string;
+  lastName: string;
+  username: string;
+  password: string;
+}
 
 export { User, UserDocument };

@@ -1,16 +1,22 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { Target, TargetDocument } from "./targetSchema";
+import { TargetDocument } from "./targetSchema";
+import { UserDocument } from "./userSchema";
 
 interface LinkGroupDocument extends Document {
-  linkName: string;
-  targets: Array<TargetDocument['_id']>;
+  name: string;
+  userId: UserDocument["_id"];
+  targets: Array<TargetDocument["_id"]>;
 }
 
 const linkGroupSchema: Schema = new Schema({
-  linkName: { type: String, required: true },
-  targets: [{ type: Schema.Types.ObjectId, ref: 'Target' }],
+  name: { type: String, required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
+  targets: [{ type: Schema.Types.ObjectId, ref: "Target" }],
 });
 
-const LinkGroup: Model<LinkGroupDocument> = mongoose.model<LinkGroupDocument>("LinkGroup", linkGroupSchema);
+const LinkGroup: Model<LinkGroupDocument> = mongoose.model<LinkGroupDocument>(
+  "LinkGroup",
+  linkGroupSchema,
+);
 
 export { LinkGroup, LinkGroupDocument };
