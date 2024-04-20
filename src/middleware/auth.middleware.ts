@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import {
   header,
   ValidationChain,
@@ -41,5 +42,13 @@ export function validate(
     next();
   } catch (e) {
     next(e);
+  }
+}
+
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+  try {
+
+  } catch (e) {
+    
   }
 }
