@@ -1,23 +1,34 @@
 import express from "express";
 import * as userValidator from "./user.validator";
 import * as userController from "./user.controller";
-import {createNewLink} from "../links/linkController";
 import * as authMiddleware from "../../middleware/auth.middleware";
-
+import * as validatorMiddleware from "../../middleware/validator.middleware";
 
 const router = express.Router();
 
-router.use(authMiddleware.token , authMiddleware.validate);
+router.get(
+  "/",
+  authMiddleware.token,
+  validatorMiddleware.validate,
+  userController.getAllUsers,
+);
 
-router.get("/", userController.getAllUsers);
 router.post(
   "/new-user",
+  authMiddleware.token,
   userValidator.createUserValidation,
+  validatorMiddleware.validate,
   userController.createNewUser,
-  authMiddleware.token
 );
+
 router.get("/:userId", userController.getUserById);
-router.put("/:userId/edit-user", userValidator.updateUserValidation,userController.updateUserById);
+
+router.put(
+  "/:userId/edit-user",
+  userValidator.updateUserValidation,
+  userController.updateUserById,
+);
+
 router.delete("/:userId/delete-user", userController.deleteUserbyId);
 router.get("/:userId/links", userController.getLinksByUserId);
 //router.get("/links", userController.getLinksByJwtToken);

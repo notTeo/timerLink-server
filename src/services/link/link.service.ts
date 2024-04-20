@@ -3,12 +3,11 @@ import { LinkGroup } from "../../models/linkGroupSchema";
 import { Target } from "../../models/targetSchema";
 import { Response } from "express";
 import { sendErrorResponse } from "../../utils/responses";
-import * as userService from "../user/user.service";
 
 export async function createNewLink(
   userId: string,
   linkBody: any,
-  res: Response
+  res: Response,
 ) {
   try {
     const user = await User.findById(userId);
@@ -22,7 +21,7 @@ export async function createNewLink(
     });
     await newLink.save();
 
-    user.linkCollections.push(newLink);
+    user.links.push(newLink);
     await user.save();
     return user;
   } catch (e) {
@@ -31,10 +30,14 @@ export async function createNewLink(
   }
 }
 
+export async function getLinksByUserId(userId: string) {
+  return await LinkGroup.find({ userId }).populate("targets").exec();
+}
+
 export async function getLinkById(
   userId: string,
   linkId: string,
-  res: Response
+  res: Response,
 ) {
   try {
     const user = await User.findById(userId);
@@ -56,7 +59,7 @@ export async function getLinkById(
 export async function deleteLinkById(
   userId: string,
   linkId: string,
-  res: Response
+  res: Response,
 ) {
   try {
     const user = await User.findById(userId);
@@ -77,7 +80,7 @@ export async function createNewTarget(
   userId: string,
   linkId: string,
   targetBody: any,
-  res: Response
+  res: Response,
 ) {
   try {
     const user = await User.findById(userId);
@@ -107,7 +110,7 @@ export async function getTargetByLinkId(
   userId: string,
   linkId: string,
   targetId: string,
-  res: Response
+  res: Response,
 ) {
   try {
     await getLinkById(userId, linkId, res);
@@ -126,7 +129,7 @@ export async function deleteTargetById(
   userId: string,
   linkId: string,
   targetId: string,
-  res: Response
+  res: Response,
 ) {
   try {
     const target = getTargetByLinkId(userId, linkId, targetId, res);
@@ -145,7 +148,7 @@ export async function updateTargetById(
   linkId: string,
   targetId: string,
   targetBody: any,
-  res: Response
+  res: Response,
 ) {
   try {
     const target = getTargetByLinkId(userId, linkId, targetId, res);
