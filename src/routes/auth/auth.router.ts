@@ -3,6 +3,7 @@ import * as errorMiddleware from "../../middleware/error.middleware";
 import * as validatorMiddleware from "../../middleware/validator.middleware";
 import * as authController from "./auth.controller";
 import * as authValidator from "./auth.validator";
+import * as authMiddleware from "../../middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -18,6 +19,13 @@ router.post(
   authValidator.register,
   validatorMiddleware.validate,
   authController.register,
+);
+
+router.post(
+  "/logout",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  authController.logout
 );
 
 router.post(

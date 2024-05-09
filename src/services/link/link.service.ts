@@ -4,143 +4,96 @@ import { Target } from "../../models/targetSchema";
 import { Response } from "express";
 import { sendErrorResponse } from "../../utils/responses";
 
-export async function createNewLink(
-  userId: string,
-  linkBody: any,
-  res: Response,
-) {
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return sendErrorResponse(res, "User was not found", 404);
-    }
-    const { linkName } = linkBody;
+export async function createNewLink(userId: string, name: any) {
+  const user = await User.findById(userId);
+  const linkName = name;
 
-    const newLink = new LinkGroup({
-      linkName: linkName,
-    });
-    await newLink.save();
+  const newLink = new LinkGroup({
+    name: linkName,
+  });
+  await newLink.save();
 
-    user.links.push(newLink);
-    await user.save();
-    return user;
-  } catch (e) {
-    console.log("Error creating new link", e);
-    sendErrorResponse(res, "Error creating new link", 500);
-  }
+  user.links.push(newLink);
+  await user.save();
+  return user;
 }
 
 export async function getLinksByUserId(userId: string) {
-  return await LinkGroup.find({ userId }).populate("targets").exec();
+  const user = await User.findById(userId).populate("links");
+  return user.links;
 }
 
-export async function getLinkById(
-  userId: string,
-  linkId: string,
-  res: Response,
-) {
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return sendErrorResponse(res, "User was not found", 404);
-    }
-    const link = (await LinkGroup.findById(linkId)).populate("targets");
-
-    if (!link) {
-      return sendErrorResponse(res, "Link not found", 404);
-    }
-    return link;
-  } catch (e) {
-    console.log("Error getting link", e);
-    sendErrorResponse(res, "Error getting link", 500);
+export async function getLinkById(userId: string, linkId: string) {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User was not found");
   }
+  const link = await LinkGroup.findById(linkId).populate("targets");
+
+  if (!link) {
+    throw new Error("Link was not found");
+  }
+  return link;
 }
 
-export async function deleteLinkById(
-  userId: string,
-  linkId: string,
-  res: Response,
-) {
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return sendErrorResponse(res, "User not found", 404);
-    }
-    const deletedLink = await LinkGroup.findByIdAndDelete(linkId);
-    if (!deletedLink) {
-      return sendErrorResponse(res, "Link not found", 404);
-    }
-    await user.save();
-  } catch (e) {
-    sendErrorResponse(res, "Error deleting link", 500);
+export async function deleteLinkById(userId: string, linkId: string) {
+  const user = await User.findById(userId);
+  const deletedLink = await LinkGroup.findByIdAndDelete(linkId);
+  if (!deletedLink) {
+    throw new Error("Link not found");
   }
+  await user.save();
 }
 
 export async function createNewTarget(
   userId: string,
   linkId: string,
-  targetBody: any,
-  res: Response,
+  url: string
 ) {
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return sendErrorResponse(res, "User not found", 404);
-    }
-    const link = await LinkGroup.findById(linkId).populate("targets").exec();
-    if (!link) {
-      return sendErrorResponse(res, "Link not found", 404);
-    }
-    const newTarget = new Target({
-      url: targetBody.url,
-    });
-
-    const savedTarget = await newTarget.save();
-
-    link.targets.push(savedTarget);
-    await link.save();
-    return link;
-  } catch (e) {
-    console.log("Error creating new target:", e);
-    sendErrorResponse(res, "Error creating new target:", 500);
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User was not found");
   }
+
+  const link = await LinkGroup.findById(linkId).populate("targets");
+  if (!link) {
+    throw new Error("Link was not found");
+  }
+
+  const newTarget = new Target({
+    url: url,
+  });
+
+  const savedTarget = await newTarget.save();
+  link.targets.push(savedTarget);
+  await link.save();
+
+  return link;
 }
 
-export async function getTargetByLinkId(
+export async function getTargetById(
   userId: string,
   linkId: string,
-  targetId: string,
-  res: Response,
+  targetId: string
 ) {
-  try {
-    await getLinkById(userId, linkId, res);
-    const target = await Target.findById(targetId);
-    if (!target) {
-      return sendErrorResponse(res, "Link not found", 404);
-    }
-    return target;
-  } catch (e) {
-    console.log("Error getting target:", e);
-    sendErrorResponse(res, "Error getting target", 500);
+  await getLinkById(userId, linkId);
+  const target = await Target.findById(targetId);
+  if (!target) {
+    throw new Error("Link not found");
   }
+  return target;
 }
 
 export async function deleteTargetById(
   userId: string,
   linkId: string,
-  targetId: string,
-  res: Response,
+  targetId: string
 ) {
-  try {
-    const target = getTargetByLinkId(userId, linkId, targetId, res);
-    if (!target) {
-      return sendErrorResponse(res, "Target not found", 404);
-    }
-    await Target.findByIdAndDelete(targetId);
-  } catch (e) {
-    console.log("Error deleting target:", e);
-    sendErrorResponse(res, "Error deleting target", 500);
+  const target = await getTargetById(userId, linkId, targetId);
+  if (!target) {
+    throw new Error("Target not found");
   }
+  await Target.findByIdAndDelete(targetId);
 }
 
 export async function updateTargetById(
@@ -148,10 +101,10 @@ export async function updateTargetById(
   linkId: string,
   targetId: string,
   targetBody: any,
-  res: Response,
+  res: Response
 ) {
   try {
-    const target = getTargetByLinkId(userId, linkId, targetId, res);
+    const target = getTargetById(userId, linkId, targetId);
     if (!target) {
       return sendErrorResponse(res, "Target not found", 404);
     }

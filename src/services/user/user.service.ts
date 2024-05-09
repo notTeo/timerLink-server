@@ -6,21 +6,16 @@ import jwt from "jsonwebtoken";
 
 export async function getAllUsers(res: Response) {
   try {
-    return await User.find().populate({
-      path: "linkCollections",
-      populate: {
-        path: "targets",
-      },
-    });
+    return await User.find();
   } catch (e) {
     console.log("Error getting users", e);
     sendErrorResponse(res, "Error getting users", 500);
   }
 }
 
-export async function createNewUser(name: string, password: string) {
+export async function createNewUser(username: string, password: string,confirmPassword:string, email: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = new User({ name: name, password: hashedPassword });
+  const newUser = new User({ username: username, password: hashedPassword, email: email });
   await newUser.save();
   const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
 
@@ -30,7 +25,7 @@ export async function createNewUser(name: string, password: string) {
 export async function getUserById(userId: string, res: Response) {
   try {
     const user = await User.findById(userId).populate({
-      path: "linkCollections",
+      path: "links",
       populate: {
         path: "targets",
       },
@@ -46,17 +41,15 @@ export async function getUserById(userId: string, res: Response) {
 
 export async function updateUserById(
   userId: string,
-  name: string,
+  username: string,
   password: string,
-  res: Response,
 ) {
-  try {
     const user = await User.findById(userId);
     if (!user) {
-      return sendErrorResponse(res, "User not found", 404);
+      throw new Error("User not found")
     }
-    if (!name) {
-      name = user.name;
+    if (!username) {
+      username = user.username;
     }
     if (!password) {
       password = user.password;
@@ -65,15 +58,11 @@ export async function updateUserById(
     return await User.findByIdAndUpdate(
       userId,
       {
-        name: name,
+        username: username,
         password: hashedPassword,
       },
       { new: true },
     );
-  } catch (e) {
-    console.log("Error updating user", e);
-    sendErrorResponse(res, "Error updating user", 500);
-  }
 }
 
 export async function deleteUserById(userId: string, res: Response) {
@@ -85,17 +74,5 @@ export async function deleteUserById(userId: string, res: Response) {
     return deletedUser;
   } catch (e) {
     console.log("Error deleting user", e);
-  }
-}
-
-export async function getLinksByUserId(userId: string, res: Response) {
-  try {
-    const user = await User.findById(userId).populate("linkCollections");
-    if (!user) {
-      return sendErrorResponse(res, "Error getting user links", 500);
-    }
-    return user.links;
-  } catch (e) {
-    console.log("Error getting user links", e);
   }
 }

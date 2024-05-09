@@ -2,15 +2,16 @@ import { Request, Response, NextFunction } from "express";
 import * as linkService from "../../services/link/link.service";
 import { sendSuccessResponse } from "../../utils/responses";
 
+interface UserRequest extends Request {
+  user?: { [key: string]: any };
+}
 export async function getLinks(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const userId = req.user?._id;
+    const userId = req.user._id;
     const newLink = await linkService.getLinksByUserId(userId);
     sendSuccessResponse(res, newLink);
   } catch (e) {
@@ -19,14 +20,14 @@ export async function getLinks(
 }
 
 export async function createNewLink(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
-    const linkBody = req.body;
-    const newLink = await linkService.createNewLink(userId, linkBody, res);
+    const userId = req.user._id;
+    const name = req.body.name;
+    const newLink = await linkService.createNewLink(userId, name);
     sendSuccessResponse(res, newLink);
   } catch (e) {
     next(e);
@@ -34,14 +35,14 @@ export async function createNewLink(
 }
 
 export async function getLinkById(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
     const linkId = req.params.linkId;
-    const link = await linkService.getLinkById(userId, linkId, res);
+    const link = await linkService.getLinkById(userId, linkId);
     sendSuccessResponse(res, link);
   } catch (e) {
     next(e);
@@ -49,14 +50,14 @@ export async function getLinkById(
 }
 
 export async function deleteLinkById(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
     const linkId = req.params.linkId;
-    await linkService.deleteLinkById(userId, linkId, res);
+    await linkService.deleteLinkById(userId, linkId);
     sendSuccessResponse(res, "link deleted");
   } catch (e) {
     next(e);
@@ -64,19 +65,18 @@ export async function deleteLinkById(
 }
 
 export async function createNewTarget(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
     const linkId = req.params.linkId;
-    const targetBody = req.body;
+    const url = req.body.url;
     const newTarget = await linkService.createNewTarget(
       userId,
       linkId,
-      targetBody,
-      res,
+      url,
     );
     sendSuccessResponse(res, newTarget);
   } catch (e) {
@@ -84,20 +84,19 @@ export async function createNewTarget(
   }
 }
 
-export async function getTargetByLinkId(
-  req: Request,
+export async function getTargetById(
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
     const linkId = req.params.linkId;
     const targetId = req.params.targetId;
-    const target = await linkService.getTargetByLinkId(
+    const target = await linkService.getTargetById(
       userId,
       linkId,
-      targetId,
-      res,
+      targetId, 
     );
     sendSuccessResponse(res, target);
   } catch (e) {
@@ -114,7 +113,7 @@ export async function deleteTargetById(
     const userId = req.params.userId;
     const linkId = req.params.linkId;
     const targetId = req.params.targetId;
-    await linkService.deleteTargetById(userId, linkId, targetId, res);
+    await linkService.deleteTargetById(userId, linkId, targetId);
     sendSuccessResponse(res, "target deleted");
   } catch (e) {
     next(e);

@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../../services/user/user.service";
-import { sendErrorResponse, sendSuccessResponse } from "../../utils/responses";
+import { sendSuccessResponse } from "../../utils/responses";
 
+interface UserRequest extends Request {
+  user?: { [key: string]: any };
+}
 export async function getAllUsers(
   req: Request,
   res: Response,
@@ -21,8 +24,8 @@ export async function createNewUser(
   next: NextFunction,
 ) {
   try {
-    const { name, password } = req.body;
-    const createdUser = await userService.createNewUser(name, password);
+    const { username, password, confirmPassword, email } = req.body;
+    const createdUser = await userService.createNewUser(username, password, confirmPassword, email);
     sendSuccessResponse(res, createdUser);
   } catch (e) {
     next(e);
@@ -30,12 +33,13 @@ export async function createNewUser(
 }
 
 export async function getUserById(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
+    console.log(userId);
     const user = await userService.getUserById(userId, res);
     sendSuccessResponse(res, user);
   } catch (e) {
@@ -44,14 +48,14 @@ export async function getUserById(
 }
 
 export async function updateUserById(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
-    const { name, password } = req.body;
-    await userService.updateUserById(userId, name, password, res);
+    const userId = req.user._id;
+    const { username, password } = req.body;
+    await userService.updateUserById(userId, username, password);
     sendSuccessResponse(res, "User got updated ");
   } catch (e) {
     next(e);
@@ -59,12 +63,12 @@ export async function updateUserById(
 }
 
 export async function deleteUserbyId(
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) {
   try {
-    const userId = req.params.userId;
+    const userId = req.user._id;
     await userService.deleteUserById(userId, res);
     sendSuccessResponse(res, `User deleted`);
   } catch (e) {
@@ -72,16 +76,3 @@ export async function deleteUserbyId(
   }
 }
 
-export async function getLinksByUserId(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const userId = req.params.userId;
-    const links = await userService.getLinksByUserId(userId, res);
-    sendSuccessResponse(res, links);
-  } catch (e) {
-    next(e);
-  }
-}

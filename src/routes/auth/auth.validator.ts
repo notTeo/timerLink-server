@@ -27,6 +27,15 @@ const confirmPassword = body("confirmPassword")
     return confirmPassword === req.body.password;
   })
   .withMessage("Passwords do not match");
+const email = body("email")
+.exists()
+.withMessage("You must provide a email")
+.isString()
+.withMessage("Email must be a string")
+.isLength({ min: 8, max: 25 })
+.withMessage(
+  "Password must be minimum 8 characters long and maximum 25 characters long"
+)
 
 export const login = [username, password];
-export const register = [username, password, confirmPassword];
+export const register = [username, password, confirmPassword, email];

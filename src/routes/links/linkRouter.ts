@@ -7,19 +7,45 @@ const router = express.Router();
 
 router.use(authMiddleware.validateToken);
 
-router.get("/", linkConroller.getLinks);
-router.post("/:userId/new-link", linkConroller.createNewLink);
-router.post("/:userId/:linkId/new-target", linkConroller.createNewTarget);
-router.get("/:userId/:linkId", linkConroller.getLinkById);
-router.get("/:userId/:linkId/:targetId", linkConroller.getTargetByLinkId);
-router.delete("/:userId/:linkId/delete-link", linkConroller.deleteLinkById);
+router.get("/", authMiddleware.token, linkConroller.getLinks);
+
+router.post(
+  "/new-link",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  linkValidator.createLink,
+  linkConroller.createNewLink
+);
+router.get("/:linkId", linkValidator.linkIdInParams, linkConroller.getLinkById);
 router.delete(
-  "/:userId/:linkId/:targetId/delete-target",
-  linkConroller.deleteTargetById,
+  "/:linkId/delete",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  linkConroller.deleteLinkById
+);
+
+router.post(
+  "/:linkId/new-target",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  linkConroller.createNewTarget
+);
+router.get(
+  "/:linkId/:targetId",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  linkConroller.getTargetById
+);
+
+router.delete(
+  "/:linkId/:targetId/delete",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  linkConroller.deleteTargetById
 );
 router.put(
-  "/:userId/:linkId/:targetId/edit-target",
-  linkConroller.updateTargetById,
+  "/:userId/:linkId/:targetId/edit",
+  linkConroller.updateTargetById
 );
 
 export default router;

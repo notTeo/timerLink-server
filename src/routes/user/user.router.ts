@@ -2,35 +2,36 @@ import express from "express";
 import * as userValidator from "./user.validator";
 import * as userController from "./user.controller";
 import * as authMiddleware from "../../middleware/auth.middleware";
-import * as validatorMiddleware from "../../middleware/validator.middleware";
 
 const router = express.Router();
 
 router.get(
+  "/users",
+  //temoptery route for me to see all the users i have created,
+  userController.getAllUsers
+);
+
+router.get(
   "/",
   authMiddleware.token,
-  validatorMiddleware.validate,
-  userController.getAllUsers,
+  authMiddleware.validateToken,
+  userController.getUserById
 );
-
-router.post(
-  "/new-user",
-  authMiddleware.token,
-  userValidator.createUserValidation,
-  validatorMiddleware.validate,
-  userController.createNewUser,
-);
-
-router.get("/:userId", userController.getUserById);
 
 router.put(
-  "/:userId/edit-user",
+  "/edit",
+  authMiddleware.token,
+  authMiddleware.validateToken,
   userValidator.updateUserValidation,
-  userController.updateUserById,
+  userController.updateUserById
 );
 
-router.delete("/:userId/delete-user", userController.deleteUserbyId);
-router.get("/:userId/links", userController.getLinksByUserId);
-//router.get("/links", userController.getLinksByJwtToken);
+router.delete(
+  "/delete",
+  authMiddleware.token,
+  authMiddleware.validateToken,
+  userController.deleteUserbyId
+);
+
 
 export default router;
